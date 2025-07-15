@@ -3,6 +3,8 @@
   hosts: localhost
   become: yes
   vars:
+    ansible_pull_service: /etc/systemd/system/ansible-pull.service
+    ansible_pull_timer:   /etc/systemd/system/ansible-pull.timer
     apt_packages:
       - unzip
       - curl
@@ -51,3 +53,49 @@
       community.docker.docker_compose_v2:
         project_src: /opt/ansible-pull
         recreate: auto
+
+    - name: Install ansible-pull.service
+      copy:
+        dest: "{{ ansible_pull_service }}"
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Run ansible-pull to update and apply playbook
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=oneshot
+          User=root
+          WorkingDirectory=/opt/ansible-pull
+          ExecStart=/usr/bin/ansible-pull -o -U https://github.com/JManzur/ansible-pull-docker-compose.git -d /opt/ansible-pull
+          TimeoutStartSec=infinity
+      notify: reload systemd
+
+    - name: Install ansible-pull.timer
+      copy:
+        dest: "{{ ansible_pull_timer }}"
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Run ansible-pull every 10 minutes
+
+          [Timer]
+          OnCalendar=*:0/10
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+      notify: reload systemd
+
+    - name: Enable & start ansible-pull.timer
+      systemd:
+        name: ansible-pull.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
+  handlers:
+    - name: reload systemd
+      command: systemctl daemon-reload
+      become: yes
