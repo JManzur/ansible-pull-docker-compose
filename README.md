@@ -55,6 +55,12 @@ Or the next scheduled run time:
 systemctl show ansible-pull.timer --property=NextElapseUSec
 ```
 
+If you changed the time interval in the `ansible-pull.timer` you can get the current interval by checking the `TimersCalendar` property:
+
+```bash
+systemctl show ansible-pull.timer --property=TimersCalendar
+```
+
 5. Verify that the application has been updated by sending a request to the application:
 
 ```bash
