@@ -3,7 +3,7 @@ services:
     image: jmanzur/demo-lb-app:latest
     container_name: DEMO-LB-APP
     environment:
-      - APP_VERSION=v1.0.0
+      - APP_VERSION=v1.0.1
     restart: always
     ports:
       - "8882:8882/tcp"

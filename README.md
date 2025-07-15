@@ -22,4 +22,4 @@ sudo apt-get update && sudo apt-get install ansible -y
 
 ```bash
 /usr/bin/ansible-pull -U https://github.com/JManzur/ansible-pull-docker-compose.git -d /opt/ansible-pull
-```a
+```
