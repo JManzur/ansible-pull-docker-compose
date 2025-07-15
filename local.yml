@@ -5,6 +5,7 @@
   vars:
     ansible_pull_service: /etc/systemd/system/ansible-pull.service
     ansible_pull_timer:   /etc/systemd/system/ansible-pull.timer
+    ansible_timer_interval_in_minutes: 10
     apt_packages:
       - unzip
       - curl
@@ -91,7 +92,7 @@
           Description=Run ansible-pull every 10 minutes
 
           [Timer]
-          OnCalendar=*:0/10
+          OnCalendar=*:0/{{ ansible_timer_interval_in_minutes }}
           Persistent=true
 
           [Install]
