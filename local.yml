@@ -5,7 +5,7 @@
   vars:
     ansible_pull_service: /etc/systemd/system/ansible-pull.service
     ansible_pull_timer:   /etc/systemd/system/ansible-pull.timer
-    ansible_timer_interval_in_minutes: 10
+    ansible_timer_interval_in_minutes: 2
     apt_packages:
       - unzip
       - curl
