@@ -3,12 +3,15 @@
   hosts: localhost
   become: yes
   vars:
-    ansible_pull_service: /etc/systemd/system/ansible-pull.service
-    ansible_pull_timer:   /etc/systemd/system/ansible-pull.timer
-    ansible_timer_interval_in_minutes: 2
-    apt_packages:
+    schedule:
+      repository: https://github.com/JManzur/ansible-pull-docker-compose.git
+      service: /etc/systemd/system/ansible-pull.service
+      timer: /etc/systemd/system/ansible-pull.timer
+      interval_in_minutes: 2
+    packages:
       - unzip
       - curl
+      - jq
 
   tasks:
     - name: Install Docker
@@ -34,7 +37,7 @@
         name: "{{ item }}"
         state: present
         update_cache: yes
-      loop: "{{ apt_packages }}"
+      loop: "{{ packages }}"
 
     - name: Check if AWS CLI is installed
       ansible.builtin.command: aws --version
@@ -67,7 +70,7 @@
 
     - name: Install ansible-pull.service
       copy:
-        dest: "{{ ansible_pull_service }}"
+        dest: "{{ schedule.service }}"
         mode: "0644"
         content: |
           [Unit]
@@ -79,20 +82,20 @@
           Type=oneshot
           User=root
           WorkingDirectory=/opt/ansible-pull
-          ExecStart=/usr/bin/ansible-pull -o -U https://github.com/JManzur/ansible-pull-docker-compose.git -d /opt/ansible-pull
+          ExecStart=/usr/bin/ansible-pull -o -U {{ schedule.repository }} -d /opt/ansible-pull
           TimeoutStartSec=infinity
       notify: reload systemd
 
     - name: Install ansible-pull.timer
       copy:
-        dest: "{{ ansible_pull_timer }}"
+        dest: "{{ schedule.timer }}"
         mode: "0644"
         content: |
           [Unit]
-          Description=Run ansible-pull every 10 minutes
+          Description=Run ansible-pull every {{ schedule.interval_in_minutes }} minutes
 
           [Timer]
-          OnCalendar=*:0/{{ ansible_timer_interval_in_minutes }}
+          OnCalendar=*:0/{{ schedule.interval_in_minutes }}
           Persistent=true
 
           [Install]
