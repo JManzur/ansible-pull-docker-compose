@@ -15,7 +15,7 @@ This demo uses `ansible-pull` to run a docker-compose file that starts a simple 
 1. **Install Ansible:**
 
 ```bash
-sudo apt update && sudo apt install -y ansible
+sudo apt-get update && sudo apt-get install ansible
 ```
 
 2. **Run ansible-pull:**
