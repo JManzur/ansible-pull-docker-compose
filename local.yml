@@ -5,9 +5,10 @@
   vars:
     schedule:
       repository: https://github.com/JManzur/ansible-pull-docker-compose.git
+      pull_args: "-o -U" # Use -o to only run the playbook if the repository has been updated
       service: /etc/systemd/system/ansible-pull.service
       timer: /etc/systemd/system/ansible-pull.timer
-      interval_in_minutes: 2
+      interval_in_minutes: 2 # Use a longer interval for production environments
     packages:
       - unzip
       - curl
@@ -82,7 +83,7 @@
           Type=oneshot
           User=root
           WorkingDirectory=/opt/ansible-pull
-          ExecStart=/usr/bin/ansible-pull -o -U {{ schedule.repository }} -d /opt/ansible-pull
+          ExecStart=/usr/bin/ansible-pull {{ schedule.pull_args }} {{ schedule.repository }} -d /opt/ansible-pull
           TimeoutStartSec=infinity
       notify: reload systemd
 

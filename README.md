@@ -59,4 +59,24 @@ systemctl show ansible-pull.timer --property=NextElapseUSec
 
 ```bash
 curl http://localhost:8882/status | jq -r
-```   
+```
+
+### Working with private repositories
+
+If you need to pull from a private repository, you can use SSH keys or HTTPS with credentials. For SSH, ensure your SSH key is added to the `ssh-agent` and that the public key is added to your Git provider.
+
+For HTTPS, you can use a fine grained personal access token (PAT), with the minimal scope Contents → Read‑only. Then set the environment variable `ANSIBLE_PULL_TOKEN` with your token:
+
+```bash
+export ANSIBLE_PULL_TOKEN=<your_personal_access_token>
+```
+
+And execute the `ansible-pull` command with the token:
+```bash
+/usr/bin/ansible-pull -U https://${ANSIBLE_PULL_TOKEN}@github.com/JManzur/ansible-pull-docker-compose.git -d /opt/ansible-pull
+```
+
+If you're working in an AWS environment, you can use aws ssm to securely store your token and retrieve it with the aws ssm get-parameter command before executing ansible-pull. You can also automate this process by creating a script and integrating it into a systemd service.
+
+## Resources:
+- [Ansible Pull Documentation](https://docs.ansible.com/ansible/latest/cli/ansible-pull.html)
