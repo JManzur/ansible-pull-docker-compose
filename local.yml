@@ -48,9 +48,16 @@
         sudo /opt/ansible-pull/aws/install
       when: aws_cli_version.rc != 0
 
+    - name: Check if Oh-My-Bash is installed
+      ansible.builtin.stat:
+        path: /root/.oh-my-bash
+      register: omb_dir
+      changed_when: false 
+
     - name: Install Oh-My-Bash
       ansible.builtin.shell: |
         bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+      when: not omb_dir.stat.exists
 
     - name: Run docker-compose
       community.docker.docker_compose_v2:
