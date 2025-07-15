@@ -23,14 +23,10 @@
     - name: Verify Docker installation
       shell: docker --version
       register: docker_version
-    - debug:
-        msg: "Docker installed: {{ docker_version.stdout }}"
 
     - name: Verify Docker Compose installation
       shell: docker-compose --version
       register: docker_compose_version
-    - debug:
-        msg: "Docker Compose installed: {{ docker_compose_version.stdout }}"
    
     - name: Install APT packages
       apt:
@@ -39,11 +35,18 @@
         update_cache: yes
       loop: "{{ apt_packages }}"
 
+    - name: Check if AWS CLI is installed
+      ansible.builtin.command: aws --version
+      register: aws_cli_version
+      changed_when: false
+      failed_when: false
+
     - name: Install AWS CLI
       ansible.builtin.shell: |
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip /opt/ansible-pull/awscliv2.zip
         sudo /opt/ansible-pull/aws/install
+      when: aws_cli_version.rc != 0
 
     - name: Install Oh-My-Bash
       ansible.builtin.shell: |
